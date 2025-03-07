@@ -14,14 +14,14 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(uuid()) @db.Uuid
-  userName         String   @unique
-  firstName        String
-  lastName         String
-  email            String   @unique
+  id               String    @id @default(uuid()) @db.Uuid
+  userName         String    @unique
+  firstName        String?
+  lastName         String?
+  email            String    @unique
   passWord         String
   age              Int?
-  createdAt        DateTime @default(now())
-  twoFactorEnabled Boolean  @default(false)
-  lastLoggedIn     DateTime
+  createdAt        DateTime  @default(now())
+  twoFactorEnabled Boolean   @default(false)
+  lastLoggedIn     DateTime?
 }
