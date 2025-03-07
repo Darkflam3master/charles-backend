@@ -19,7 +19,7 @@ model User {
   firstName        String?   @map("first_name")
   lastName         String?   @map("last_name")
   email            String    @unique
-  passWord         String    @map("pass_word")
+  password         String
   age              Int?
   createdAt        DateTime  @default(now()) @map("created_at")
   twoFactorEnabled Boolean   @default(false) @map("two_factor_enabled")
