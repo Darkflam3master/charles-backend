@@ -4,7 +4,7 @@ export type UserCreateInput = {
   firstName?: string | null;
   lastName?: string | null;
   email: string;
-  passWord: string;
+  password: string;
   age?: number | null;
   createdAt?: Date | string;
   twoFactorEnabled?: boolean;

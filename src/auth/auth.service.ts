@@ -10,21 +10,21 @@ export class AuthService {
 
   async signup(dto: AuthSignUpDto) {
     //generate the password hash
-    const hash = await argon.hash(dto.passWord);
+    const hash = await argon.hash(dto.password);
 
     try {
       //save new user into db
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
-          passWord: hash,
+          password: hash,
           userName: dto.userName,
         },
       });
 
       const userWithoutPassword = {
         ...user,
-        passWord: undefined,
+        password: undefined,
       };
       //return saved user
       return userWithoutPassword;
@@ -50,7 +50,7 @@ export class AuthService {
       throw new ForbiddenException('Credential Not Found');
     }
 
-    const pwMatches = await argon.verify(user.passWord, dto.passWord);
+    const pwMatches = await argon.verify(user.password, dto.password);
 
     if (!pwMatches) {
       throw new ForbiddenException('Incorrect Credential');
