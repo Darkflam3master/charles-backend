@@ -19,6 +19,7 @@ model User {
   firstName        String
   lastName         String
   email            String   @unique
+  passWord         String
   age              Int?
   createdAt        DateTime @default(now())
   twoFactorEnabled Boolean  @default(false)
