@@ -47,7 +47,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ForbiddenException('Credential Not Found');
+      throw new ForbiddenException('Incorrect Credential');
     }
 
     const pwMatches = await argon.verify(user.password, dto.password);
