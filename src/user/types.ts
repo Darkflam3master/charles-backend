@@ -9,4 +9,5 @@ export type UserCreateInput = {
   createdAt?: Date | string;
   twoFactorEnabled?: boolean;
   lastLoggedIn?: Date | string | null;
+  hashedRt: string;
 };

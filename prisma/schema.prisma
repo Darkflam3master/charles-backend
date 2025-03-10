@@ -24,4 +24,5 @@ model User {
   createdAt        DateTime  @default(now()) @map("created_at")
   twoFactorEnabled Boolean   @default(false) @map("two_factor_enabled")
   lastLogIn        DateTime? @map("last_log_in")
+  hashedRt         String    @unique
 }
