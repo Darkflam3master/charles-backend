@@ -1,13 +1,42 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AuthSignUpDto, AuthLogInDto } from './dto';
-import * as argon from 'argon2';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import * as argon from 'argon2';
+
+import { AuthSignUpDto, AuthLogInDto } from './dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Tokens } from './types';
 
 @Injectable({})
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
+
+  async getTokens(userId: string, userName: string): Promise<Tokens> {
+    const [at, rt] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          id: userId,
+          userName,
+        },
+        { secret: 'at-secret', expiresIn: 60 * 15 },
+      ),
+      this.jwtService.signAsync(
+        {
+          id: userId,
+          userName,
+        },
+        { secret: 'rt-secret', expiresIn: 60 * 60 * 24 * 7 },
+      ),
+    ]);
+
+    return {
+      access_token: at,
+      refresh_token: rt,
+    };
+  }
 
   async signup(dto: AuthSignUpDto): Promise<Tokens> {
     //generate the password hash
@@ -15,7 +44,7 @@ export class AuthService {
 
     try {
       //save new user into db
-      const user = await this.prisma.user.create({
+      const newUser = await this.prisma.user.create({
         data: {
           email: dto.email,
           password: hash,
@@ -23,12 +52,9 @@ export class AuthService {
         },
       });
 
-      const userWithoutPassword = {
-        ...user,
-        password: undefined,
-      };
-      //return saved user
-      return userWithoutPassword;
+      const tokens = await this.getTokens(newUser.id, newUser.userName);
+
+      return tokens;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'p2002') {
