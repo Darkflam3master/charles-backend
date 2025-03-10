@@ -38,6 +38,19 @@ export class AuthService {
     };
   }
 
+  async updateRtHash(id: string, rt: string) {
+    const hash = await argon.hash(rt);
+
+    await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        hashedRt: hash,
+      },
+    });
+  }
+
   async signup(dto: AuthSignUpDto): Promise<Tokens> {
     //generate the password hash
     const hash = await argon.hash(dto.password);
@@ -53,6 +66,7 @@ export class AuthService {
       });
 
       const tokens = await this.getTokens(newUser.id, newUser.userName);
+      await this.updateRtHash(newUser.id, tokens.refresh_token);
 
       return tokens;
     } catch (error) {
