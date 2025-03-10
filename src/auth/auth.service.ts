@@ -3,12 +3,13 @@ import { AuthSignUpDto, AuthLogInDto } from './dto';
 import * as argon from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Tokens } from './types';
 
 @Injectable({})
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  async signup(dto: AuthSignUpDto) {
+  async signup(dto: AuthSignUpDto): Promise<Tokens> {
     //generate the password hash
     const hash = await argon.hash(dto.password);
 
