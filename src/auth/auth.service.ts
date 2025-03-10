@@ -100,6 +100,20 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.userName);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return { message: 'Sign in Successful' };
+    return tokens;
+  }
+
+  async logout(id: string) {
+    await this.prisma.user.updateMany({
+      where: {
+        id,
+        hashedRt: {
+          not: null,
+        },
+      },
+      data: {
+        hashedRt: null,
+      },
+    });
   }
 }
