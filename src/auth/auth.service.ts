@@ -87,7 +87,7 @@ export class AuthService {
       },
     });
 
-    if (!user || !user.hashedRt) {
+    if (!user) {
       throw new ForbiddenException('Incorrect Credential');
     }
 
@@ -115,5 +115,26 @@ export class AuthService {
         hashedRt: null,
       },
     });
+  }
+
+  async refreshTokens(id: string, rt: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
+
+    const rtMatches = await argon.verify(user.hashedRt, rt);
+
+    console.log(`rtMatches: ${rtMatches}`);
+
+    if (!rtMatches) throw new ForbiddenException('Access Denied');
+
+    const tokens = await this.getTokens(user.id, user.userName);
+    await this.updateRtHash(user.id, tokens.refresh_token);
+
+    return tokens;
   }
 }
