@@ -87,7 +87,7 @@ export class AuthService {
       },
     });
 
-    if (!user) {
+    if (!user || !user.hashedRt) {
       throw new ForbiddenException('Incorrect Credential');
     }
 
@@ -96,6 +96,9 @@ export class AuthService {
     if (!pwMatches) {
       throw new ForbiddenException('Incorrect Credential');
     }
+
+    const tokens = await this.getTokens(user.id, user.userName);
+    await this.updateRtHash(user.id, tokens.refresh_token);
 
     return { message: 'Sign in Successful' };
   }
