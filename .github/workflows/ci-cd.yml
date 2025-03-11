@@ -36,8 +36,6 @@ jobs:
   docker_build:
     needs: build_and_test # This job depends on the success of the build_and_test job
     runs-on: ubuntu-latest # The environment to run the job
-    outputs:
-      COMMIT_HASH: ${{ steps.vars.outputs.COMMIT_HASH }}
 
     steps:
       # Step 1: Checkout the code from the GitHub repository
@@ -49,9 +47,7 @@ jobs:
         id: vars
         run: |
           COMMIT_HASH=$(git rev-parse --short HEAD)
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-          echo "::set-output name=COMMIT_HASH::$COMMIT_HASH"
-          echo "Docker tag will be: darkflam3m4ster/charles-backend:$COMMIT_HASH"
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV  # <-- Set commit hash as environment variable for this job
 
       # Step 3: Build the Docker image
       - name: Build Docker image
@@ -74,5 +70,5 @@ jobs:
       # Step 2: Push the Docker image to Docker Hub
       - name: Push Docker image
         run: |
-          echo "Tagging Docker image with commit hash: ${{ needs.docker_build.outputs.COMMIT_HASH }}"
-          docker push darkflam3m4ster/charles-backend:${{ needs.docker_build.outputs.COMMIT_HASH }}
+          echo "Tagging Docker image with commit hash: ${{ env.COMMIT_HASH }}"
+          docker push darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
