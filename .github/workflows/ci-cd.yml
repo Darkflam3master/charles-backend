@@ -73,4 +73,5 @@ jobs:
       # Step 2: Push the Docker image to Docker Hub
       - name: Push Docker image
         run: |
+          echo "Tagging Docker image with commit hash: ${{ needs.docker_build.outputs.commit_hash }}"
           docker push darkflam3m4ster/charles-backend:${{ needs.docker_build.outputs.COMMIT_HASH }}
