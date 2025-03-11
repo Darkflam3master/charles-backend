@@ -36,6 +36,8 @@ jobs:
   docker_build:
     needs: build_and_test # This job depends on the success of the build_and_test job
     runs-on: ubuntu-latest # The environment to run the job
+    outputs:
+      COMMIT_HASH: ${{ steps.vars.outputs.COMMIT_HASH }}
 
     steps:
       # Step 1: Checkout the code from the GitHub repository
@@ -71,4 +73,4 @@ jobs:
       # Step 2: Push the Docker image to Docker Hub
       - name: Push Docker image
         run: |
-          docker push darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
+          docker push darkflam3m4ster/charles-backend:${{ needs.docker_build.outputs.COMMIT_HASH }}
