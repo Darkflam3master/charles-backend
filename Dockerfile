@@ -65,7 +65,7 @@ FROM base as final
 ENV NODE_ENV production
 
 # Run the application as a non-root user.
-USER user
+USER node
 
 # Copy package.json so that package manager commands can be used.
 COPY package.json .
