@@ -1,10 +1,14 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { UserRequest } from './user.types';
 
 export const GetCurrentUser = createParamDecorator(
-  (data: string | undefined, context: ExecutionContext) => {
-    const request = context.switchToHttp().getRequest();
-    if (!data) return request.user;
+  (data: keyof UserRequest | undefined, context: ExecutionContext) => {
+    const request = context.switchToHttp().getRequest<{ user?: UserRequest }>();
 
-    return request.user[data];
+    if (!request.user) {
+      throw new Error('User not found in request'); // Handle missing user
+    }
+
+    return data ? request.user[data] : request.user;
   },
 );
