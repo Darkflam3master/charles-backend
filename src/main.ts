@@ -11,4 +11,8 @@ async function bootstrap() {
   );
   await app.listen(process.env.PORT ?? 3001);
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  // Handle any errors that might occur during startup
+  console.error('Error during application startup:', err);
+});
