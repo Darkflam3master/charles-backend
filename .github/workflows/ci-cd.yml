@@ -50,6 +50,7 @@ jobs:
         run: |
           COMMIT_HASH=$(git rev-parse --short HEAD)
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+          echo "::set-output name=COMMIT_HASH::$COMMIT_HASH"
           echo "Docker tag will be: darkflam3m4ster/charles-backend:$COMMIT_HASH"
 
       # Step 3: Build the Docker image
@@ -73,5 +74,5 @@ jobs:
       # Step 2: Push the Docker image to Docker Hub
       - name: Push Docker image
         run: |
-          echo "Tagging Docker image with commit hash: ${{ needs.docker_build.outputs.commit_hash }}"
+          echo "Tagging Docker image with commit hash: ${{ needs.docker_build.outputs.COMMIT_HASH }}"
           docker push darkflam3m4ster/charles-backend:${{ needs.docker_build.outputs.COMMIT_HASH }}
