@@ -12,9 +12,16 @@ ARG NODE_VERSION=18.18.2
 # Use node image for base image for all stages.
 FROM node:${NODE_VERSION}-alpine as base
 
-# Set working directory for all build stages.
-WORKDIR /usr/src/app
+# Set the working directory
+WORKDIR /app
 
+# Copy the entire project (including tsconfig.json) into the container
+COPY . .
+
+# Install dependencies
+RUN npm install
+
+RUN npm install -g @nestjs/cli
 
 ################################################################################
 # Create a stage for installing production dependecies.
@@ -62,8 +69,8 @@ COPY package.json .
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
-COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
 
 # Expose the port that the application listens on.
