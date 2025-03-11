@@ -12,6 +12,9 @@ ARG NODE_VERSION=18.18.2
 # Use node image for base image for all stages.
 FROM node:${NODE_VERSION}-alpine as base
 
+# Set environment variables without hardcoding sensitive values
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Set the working directory
 WORKDIR /app
 
@@ -62,15 +65,15 @@ FROM base as final
 ENV NODE_ENV production
 
 # Run the application as a non-root user.
-USER node
+USER user
 
 # Copy package.json so that package manager commands can be used.
 COPY package.json .
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
+COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
 
 
 # Expose the port that the application listens on.
