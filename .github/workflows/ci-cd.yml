@@ -9,7 +9,8 @@ on:
       - main # Trigger on pull requests targeting the main branch
 
 jobs:
-  build:
+  # Job 1: Build and test the application
+  build_and_test:
     runs-on: ubuntu-latest # The environment to run the job
 
     steps:
@@ -31,10 +32,17 @@ jobs:
       - name: Run tests
         run: npm run test -- --coverage --passWithNoTests
 
-      # Step 5: Build the NestJS application for production
-      - name: Build NestJS application
-        run: npm run build
+  # Job 2: Build the Docker image
+  docker_build:
+    needs: build_and_test # This job depends on the success of the build_and_test job
+    runs-on: ubuntu-latest # The environment to run the job
 
+    steps:
+      # Step 1: Checkout the code from the GitHub repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Generate Docker tag using the latest commit hash
       - name: Generate Docker tag
         id: vars
         run: |
@@ -42,16 +50,25 @@ jobs:
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
           echo "Docker tag will be: darkflam3m4ster/charles-backend:$COMMIT_HASH"
 
+      # Step 3: Build the Docker image
       - name: Build Docker image
         run: |
           docker build -t darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }} .
 
+  # Job 3: Push Docker image to Docker Hub
+  docker_push:
+    needs: docker_build # This job depends on the success of the docker_build job
+    runs-on: ubuntu-latest # The environment to run the job
+
+    steps:
+      # Step 1: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
+      # Step 2: Push the Docker image to Docker Hub
       - name: Push Docker image
         run: |
           docker push darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
