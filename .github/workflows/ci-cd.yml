@@ -82,8 +82,12 @@ jobs:
 
       - name: Set Heroku Config Vars
         run: |
-          heroku config:set DATABASE_URL=${{ secrets.DATABASE_URL }} --app charles-backend
-          heroku config:set API_KEY=${{ secrets.HEROKU_KEY }} --app charles-backend
+          heroku config:set \
+          DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} \
+          REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
+          API_KEY=${{ secrets.HEROKU_KEY }} \
+          --app charles-backend
 
       - name: Tag Docker image for Heroku
         run: docker tag darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }} registry.heroku.com/charles-backend/web # Replace with your app name
