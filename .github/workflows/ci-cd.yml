@@ -87,4 +87,4 @@ jobs:
         run: docker push registry.heroku.com/charles-backend/web # Replace with your app name
 
       - name: Release Docker image on Heroku
-        run: heroku container:release web --app your-app-name
+        run: heroku container:release web --app charles-backend
