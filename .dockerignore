@@ -32,3 +32,8 @@
 **/dist
 LICENSE
 README.md
+node_modules
+dist
+*.log
+*.md
+.git
