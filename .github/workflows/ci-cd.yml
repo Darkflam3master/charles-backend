@@ -66,3 +66,21 @@ jobs:
         run: |
           echo "Tagging Docker image with commit hash: ${{ env.COMMIT_HASH }}"
           docker push darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
+      - name: Pull image for DockerHub
+        run: docker pull darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
+
+      - name: Log in to Heroku Container Registry
+        run: |
+          echo "machine api.heroku.com" > ~/.netrc
+          echo "  login ${{ secrets.HEROKU_EMAIL }}" >> ~/.netrc
+          echo "  password ${{ secrets.HEROKU_KEY }}" >> ~/.netrc
+          heroku container:login
+
+      - name: Tag Docker image for Heroku
+        run: docker tag darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }} registry.heroku.com/charles-backend/web # Replace with your app name
+
+      - name: Push Docker image to Heroku
+        run: docker push registry.heroku.com/charles-backend/web # Replace with your app name
+
+      - name: Release Docker image on Heroku
+        run: heroku container:release web --app your-app-name
