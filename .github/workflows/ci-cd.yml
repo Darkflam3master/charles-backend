@@ -69,6 +69,10 @@ jobs:
       - name: Pull image for DockerHub
         run: docker pull darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
 
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+
       - name: Log in to Heroku Container Registry
         run: |
           echo "machine api.heroku.com" > ~/.netrc
