@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { ConfigService } from '@nestjs/config';
 import * as argon from 'argon2';
 
 import { AuthSignUpDto, AuthLogInDto } from './dto';
@@ -12,23 +13,30 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private config: ConfigService,
   ) {}
 
   async getTokens(userId: string, userName: string): Promise<Tokens> {
+    const accessTokenSecret = this.config.get<string>('ACCESS_TOKEN_SECRET');
+    const refreshTokenSecret = this.config.get<string>('REFRESH_TOKEN_SECRET');
+
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
           id: userId,
           userName,
         },
-        { secret: 'at-secret', expiresIn: 60 * 15 },
+        { secret: accessTokenSecret, expiresIn: 60 * 15 },
       ),
       this.jwtService.signAsync(
         {
           id: userId,
           userName,
         },
-        { secret: 'rt-secret', expiresIn: 60 * 60 * 24 * 7 },
+        {
+          secret: refreshTokenSecret,
+          expiresIn: 60 * 60 * 24 * 7,
+        },
       ),
     ]);
 
