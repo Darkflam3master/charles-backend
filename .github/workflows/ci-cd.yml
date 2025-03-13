@@ -30,7 +30,7 @@ jobs:
 
       # Step 4: Run unit tests (with code coverage)
       - name: Run tests
-        run: npm run test -- --coverage --passWithNoTests
+        run: npm run test -- --coverage
 
   # Job 2: Build the Docker image
   docker_build:
