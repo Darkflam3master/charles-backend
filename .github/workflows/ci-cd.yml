@@ -98,7 +98,7 @@ jobs:
           --app charles-backend
 
       - name: Tag Docker image for Heroku
-        run: docker tag darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.COMMIT_HASH  }} registry.heroku.com/charles-backend/web # Replace with your app name
+        run: docker tag darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.commit_hash  }} registry.heroku.com/charles-backend/web # Replace with your app name
 
       - name: Push Docker image to Heroku
         run: docker push registry.heroku.com/charles-backend/web # Replace with your app name
