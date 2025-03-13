@@ -91,6 +91,8 @@ export class AuthService {
         hashedRt: null,
       },
     });
+
+    return { message: 'Successfully logged out' };
   }
 
   async refreshTokens(id: string, rt: string) {
