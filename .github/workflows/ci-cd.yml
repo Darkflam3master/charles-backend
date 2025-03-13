@@ -33,7 +33,7 @@ jobs:
         run: npm run test -- --coverage
 
   # Job 2: Build the Docker image
-  docker_build:
+  docker_deploy:
     needs: build_and_test # This job depends on the success of the build_and_test job
     runs-on: ubuntu-latest # The environment to run the job
 
@@ -44,10 +44,11 @@ jobs:
 
       # Step 2: Generate Docker tag using the latest commit hash
       - name: Generate Docker tag
-        id: vars
+        id: docker_tag
         run: |
           COMMIT_HASH=$(git rev-parse --short HEAD)
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV  # <-- Set commit hash as environment variable for this job
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_OUTPUT
 
       # Step 3: Build the Docker image
       - name: Build Docker image
@@ -66,9 +67,14 @@ jobs:
         run: |
           echo "Tagging Docker image with commit hash: ${{ env.COMMIT_HASH }}"
           docker push darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
-      - name: Pull image for DockerHub
-        run: docker pull darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
 
+  heroku_deploy:
+    needs: docker_deploy # This job depends on the success of the build_and_test job
+    runs-on: ubuntu-latest # The environment to run the job
+
+    steps:
+      - name: Pull image from DockerHub
+        run: docker pull darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
@@ -90,7 +96,7 @@ jobs:
           --app charles-backend
 
       - name: Tag Docker image for Heroku
-        run: docker tag darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }} registry.heroku.com/charles-backend/web # Replace with your app name
+        run: docker tag darkflam3m4ster/charles-backend:${{ steps.docker_tag.ouputs.COMMIT_HASH }} registry.heroku.com/charles-backend/web # Replace with your app name
 
       - name: Push Docker image to Heroku
         run: docker push registry.heroku.com/charles-backend/web # Replace with your app name
