@@ -1,14 +1,17 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon from 'argon2';
 import * as zxcvbn from 'zxcvbn';
 
+@Injectable()
 export class AuthUtils {
   constructor(
     private jwtService: JwtService,
     private config: ConfigService,
-  ) {}
+  ) {
+    console.log('ConfigService:', config); // Debugging line
+  }
 
   static validatePassword(password: string) {
     const result = zxcvbn(password);
