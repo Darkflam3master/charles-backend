@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Pull image from DockerHub
-        run: docker pull darkflam3m4ster/charles-backend:${{ steps.docker_tag.ouputs.COMMIT_HASH }}
+        run: docker pull darkflam3m4ster/charles-backend:${{ steps.docker_tag.outputs.COMMIT_HASH }}
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
