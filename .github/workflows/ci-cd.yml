@@ -67,6 +67,8 @@ jobs:
         run: |
           echo "Tagging Docker image with commit hash: ${{ env.COMMIT_HASH }}"
           docker push darkflam3m4ster/charles-backend:${{ env.COMMIT_HASH }}
+    outputs:
+      commit_hash: ${{ steps.docker_tag.outputs.COMMIT_HASH }}
 
   heroku_deploy:
     needs: docker_deploy # This job depends on the success of the build_and_test job
@@ -74,7 +76,7 @@ jobs:
 
     steps:
       - name: Pull image from DockerHub
-        run: docker pull darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.COMMIT_HASH }}
+        run: docker pull darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.commit_hash }}
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
