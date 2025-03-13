@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Pull image from DockerHub
-        run: docker pull darkflam3m4ster/charles-backend:${{ steps.docker_tag.outputs.COMMIT_HASH }}
+        run: docker pull darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.COMMIT_HASH }}
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
@@ -96,7 +96,7 @@ jobs:
           --app charles-backend
 
       - name: Tag Docker image for Heroku
-        run: docker tag darkflam3m4ster/charles-backend:${{ steps.docker_tag.ouputs.COMMIT_HASH }} registry.heroku.com/charles-backend/web # Replace with your app name
+        run: docker tag darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.COMMIT_HASH  }} registry.heroku.com/charles-backend/web # Replace with your app name
 
       - name: Push Docker image to Heroku
         run: docker push registry.heroku.com/charles-backend/web # Replace with your app name
