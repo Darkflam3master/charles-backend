@@ -1,65 +1,30 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { ConfigService } from '@nestjs/config';
 import * as argon from 'argon2';
 
-import { AuthSignUpDto, AuthLogInDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AuthSignUpDto, AuthLogInDto } from './dto';
 import { Tokens } from './types';
+import { AuthUtils } from './auth.utils';
 
 @Injectable({})
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,
-    private config: ConfigService,
+    private AuthUtils: AuthUtils,
   ) {}
 
-  async getTokens(userId: string, userName: string): Promise<Tokens> {
-    const accessTokenSecret = this.config.get<string>('ACCESS_TOKEN_SECRET');
-    const refreshTokenSecret = this.config.get<string>('REFRESH_TOKEN_SECRET');
-
-    const [at, rt] = await Promise.all([
-      this.jwtService.signAsync(
-        {
-          id: userId,
-          userName,
-        },
-        { secret: accessTokenSecret, expiresIn: 60 * 15 },
-      ),
-      this.jwtService.signAsync(
-        {
-          id: userId,
-          userName,
-        },
-        {
-          secret: refreshTokenSecret,
-          expiresIn: 60 * 60 * 24 * 7,
-        },
-      ),
-    ]);
-
-    return {
-      access_token: at,
-      refresh_token: rt,
-    };
-  }
-
   async updateRtHash(id: string, rt: string) {
-    const hash = await argon.hash(rt);
+    const hash = await AuthUtils.hashPassword(rt);
 
     await this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: {
-        hashedRt: hash,
-      },
+      where: { id },
+      data: { hashedRt: hash },
     });
   }
 
   async signup(dto: AuthSignUpDto): Promise<Tokens> {
+    AuthUtils.validatePassword(dto.password);
     //generate the password hash
     const hash = await argon.hash(dto.password);
 
@@ -73,7 +38,10 @@ export class AuthService {
         },
       });
 
-      const tokens = await this.getTokens(newUser.id, newUser.userName);
+      const tokens = await this.AuthUtils.getTokens(
+        newUser.id,
+        newUser.userName,
+      );
       await this.updateRtHash(newUser.id, tokens.refresh_token);
 
       return tokens;
@@ -105,7 +73,7 @@ export class AuthService {
       throw new ForbiddenException('Incorrect Credential');
     }
 
-    const tokens = await this.getTokens(user.id, user.userName);
+    const tokens = await this.AuthUtils.getTokens(user.id, user.userName);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
     return tokens;
@@ -138,7 +106,7 @@ export class AuthService {
 
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.userName);
+    const tokens = await this.AuthUtils.getTokens(user.id, user.userName);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
     return tokens;
