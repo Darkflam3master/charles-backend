@@ -9,9 +9,7 @@ export class AuthUtils {
   constructor(
     private jwtService: JwtService,
     private config: ConfigService,
-  ) {
-    console.log('ConfigService:', config); // Debugging line
-  }
+  ) {}
 
   static validatePassword(password: string) {
     const result = zxcvbn(password);
