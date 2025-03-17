@@ -25,7 +25,11 @@ jobs:
 
       # Step 3: Install dependencies using npm
       - name: Install dependencies
-        run: npm install
+        run:
+          npm install
+          # Step 4: List the files in the build directory (for debugging)
+      - name: List files in build directory
+        run: ls -la ./built-charles-backend
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
