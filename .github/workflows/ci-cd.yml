@@ -26,12 +26,14 @@ jobs:
       # Step 3: Install dependencies using npm
       - name: Install dependencies
         run: npm install
+      - name: List files in build directory
+        run: ls
 
       - name: Run build command
         run: npm run build
 
       - name: List files in build directory
-        run: ls
+        run: ls -la ./dist
 
       # - name: Upload build artifacts
       #   uses: actions/upload-artifact@v2
