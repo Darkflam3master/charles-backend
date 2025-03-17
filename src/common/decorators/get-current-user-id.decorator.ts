@@ -2,7 +2,7 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { UserRequest } from './user.types';
 
 export const GetCurrentUserId = createParamDecorator(
-  (context: ExecutionContext) => {
+  (_data: unknown, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest<{ user?: UserRequest }>();
 
     if (!request.user) {
