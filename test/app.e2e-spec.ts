@@ -24,12 +24,14 @@ describe('App e2e', () => {
   });
 
   describe('Auth', () => {
+    let authResult = { access_token: '', refresh_token: '' };
+
     describe('Post /auth/signup ', () => {
       it('should return 201 when signup is successful', async () => {
         const signUpDto = {
-          userName: 'testuser',
+          userName: 'testuser1',
           password: 'BigStrongPassWordComplex*8',
-          email: 'test@example.com',
+          email: 'testuser1@example.com',
         };
 
         const response = await request(server)
@@ -52,6 +54,8 @@ describe('App e2e', () => {
         .send(signInDto)
         .expect(200);
 
+      authResult = response.body as typeof authResult;
+
       expect(response.body).toHaveProperty('access_token');
       expect(response.body).toHaveProperty('refresh_token');
     });
@@ -59,7 +63,10 @@ describe('App e2e', () => {
     it('Post /auth/refresh', async () => {
       const server = app.getHttpServer() as Server;
 
-      const response = await request(server).post('/auth/refresh').expect(200);
+      const response = await request(server)
+        .post('/auth/refresh')
+        .set('Authorization', `Bearer ${authResult.refresh_token}`)
+        .expect(200);
 
       expect(response.body).toHaveProperty('access_token');
       expect(response.body).toHaveProperty('refresh_token');
@@ -67,7 +74,10 @@ describe('App e2e', () => {
     it('Post /auth/logout', async () => {
       const server = app.getHttpServer() as Server;
 
-      const response = await request(server).post('/auth/logout').expect(200);
+      const response = await request(server)
+        .post('/auth/logout')
+        .set('Authorization', `Bearer ${authResult.access_token}`)
+        .expect(200);
 
       expect(response.body).toEqual({ message: 'Successfully logged out' });
     });
