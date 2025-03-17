@@ -9,7 +9,7 @@ import {
 
 import { AuthService } from './auth.service';
 import { AuthSignUpDto, AuthLogInDto } from './dto';
-import { RtGuard } from 'src/common/decorators/guards';
+import { RtGuard } from 'src/common/guards';
 import {
   GetCurrentUser,
   GetCurrentUserId,
