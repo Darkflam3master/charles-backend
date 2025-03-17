@@ -24,13 +24,16 @@ describe('App e2e', () => {
   });
 
   describe('Auth', () => {
+    const signInDto = {
+      userName: 'testuser1',
+      password: 'BigStrongPassWordComplex*8',
+    };
     let authResult = { access_token: '', refresh_token: '' };
 
     describe('Post /auth/signup ', () => {
       it('should return 201 when signup is successful', async () => {
         const signUpDto = {
-          userName: 'testuser1',
-          password: 'BigStrongPassWordComplex*8',
+          ...signInDto,
           email: 'testuser1@example.com',
         };
 
@@ -44,11 +47,6 @@ describe('App e2e', () => {
       });
     });
     it('Post /auth/login', async () => {
-      const signInDto = {
-        userName: 'testuser',
-        password: 'BigStrongPassWordComplex*8',
-      };
-
       const response = await request(server)
         .post('/auth/login')
         .send(signInDto)
