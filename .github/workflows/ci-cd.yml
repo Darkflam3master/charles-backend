@@ -9,9 +9,8 @@ on:
       - main # Trigger on pull requests targeting the main branch
 
 jobs:
-  # Job 1: Build and test the application
-  build_and_test:
-    runs-on: ubuntu-latest # The environment to run the job
+  build:
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Checkout the code from the GitHub repository
@@ -28,13 +27,23 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Run unit tests (with code coverage)
-      - name: Run tests
+  unit-test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run unit tests
         run: npm run test -- --coverage
+
+  e2e-test:
+    runs-on: ubuntu-latest
+    environment: stage
+    steps:
+      - name: Run end to end tests
+        run: npm run test:e2e -- --coverage
 
   # Job 2: Build the Docker image
   docker_deploy:
-    needs: build_and_test # This job depends on the success of the build_and_test job
+    needs: unit-test # This job depends on the success of the build_and_test job
     runs-on: ubuntu-latest # The environment to run the job
 
     steps:
