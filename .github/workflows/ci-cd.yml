@@ -33,7 +33,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: build-artifacts
+          name: build-artifactz
           path: dist
 
   unit-test:
@@ -50,7 +50,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
-          name: build-artifacts
+          name: build-artifactz
 
       - name: Run unit tests
         run: npm run test -- --coverage
