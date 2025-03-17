@@ -33,11 +33,11 @@ jobs:
       - name: List files in build directory
         run: ls -la ./dist
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-artifacts
-          path: ./dist
+      # - name: Upload build artifacts
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: build-artifacts
+      #     path: ./dist
 
   unit-test:
     needs: build
@@ -74,6 +74,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifacts
+
       - name: Run end to end tests
         run: npm run test:e2e -- --coverage
 
