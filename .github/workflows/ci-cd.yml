@@ -103,38 +103,38 @@ jobs:
     outputs:
       commit_hash: ${{ steps.docker_tag.outputs.COMMIT_HASH }}
 
-  heroku_deploy:
-    needs: docker_deploy
-    runs-on: ubuntu-latest
+  # heroku_deploy:
+  #   needs: docker_deploy
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Pull image from DockerHub
-        run: docker pull darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.commit_hash }}
-      - name: Install Heroku CLI
-        run: |
-          curl https://cli-assets.heroku.com/install.sh | sh
+  #   steps:
+  #     - name: Pull image from DockerHub
+  #       run: docker pull darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.commit_hash }}
+  #     - name: Install Heroku CLI
+  #       run: |
+  #         curl https://cli-assets.heroku.com/install.sh | sh
 
-      - name: Log in to Heroku Container Registry
-        run: |
-          echo "machine api.heroku.com" > ~/.netrc
-          echo "  login ${{ secrets.HEROKU_EMAIL }}" >> ~/.netrc
-          echo "  password ${{ secrets.HEROKU_KEY }}" >> ~/.netrc
-          heroku container:login
+  #     - name: Log in to Heroku Container Registry
+  #       run: |
+  #         echo "machine api.heroku.com" > ~/.netrc
+  #         echo "  login ${{ secrets.HEROKU_EMAIL }}" >> ~/.netrc
+  #         echo "  password ${{ secrets.HEROKU_KEY }}" >> ~/.netrc
+  #         heroku container:login
 
-      - name: Set Heroku Config Vars
-        run: |
-          heroku config:set \
-          DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} \
-          REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
-          API_KEY=${{ secrets.HEROKU_KEY }} \
-          --app charles-backend
+  #     - name: Set Heroku Config Vars
+  #       run: |
+  #         heroku config:set \
+  #         DATABASE_URL=${{ secrets.DATABASE_URL }} \
+  #         ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} \
+  #         REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
+  #         API_KEY=${{ secrets.HEROKU_KEY }} \
+  #         --app charles-backend
 
-      - name: Tag Docker image for Heroku
-        run: docker tag darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.commit_hash  }} registry.heroku.com/charles-backend/web # Replace with your app name
+  #     - name: Tag Docker image for Heroku
+  #       run: docker tag darkflam3m4ster/charles-backend:${{ needs.docker_deploy.outputs.commit_hash  }} registry.heroku.com/charles-backend/web # Replace with your app name
 
-      - name: Push Docker image to Heroku
-        run: docker push registry.heroku.com/charles-backend/web
+  #     - name: Push Docker image to Heroku
+  #       run: docker push registry.heroku.com/charles-backend/web
 
-      - name: Release Docker image on Heroku
-        run: heroku container:release web --app charles-backend
+  #     - name: Release Docker image on Heroku
+  #       run: heroku container:release web --app charles-backend
