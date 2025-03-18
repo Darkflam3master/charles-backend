@@ -31,9 +31,9 @@ jobs:
         run: npm run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-artifactz
+          name: build-charles
           path: dist
 
   unit-test:
@@ -48,9 +48,9 @@ jobs:
         run: npm install
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
-          name: build-artifactz
+          name: build-charles
 
       - name: Run unit tests
         run: npm run test -- --coverage
