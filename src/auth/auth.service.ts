@@ -23,24 +23,36 @@ export class AuthService {
     });
   }
 
-  async signup(dto: AuthSignUpDto): Promise<Tokens> {
-    AuthUtils.validatePassword(dto.password);
-    //generate the password hash
-    const hash = await argon.hash(dto.password);
+  async signup({
+    userName,
+    email,
+    password,
+    dateOfBirth,
+    twoFactorEnabled = false,
+  }: AuthSignUpDto): Promise<Tokens> {
+    AuthUtils.validatePassword(password);
+    const hash = await argon.hash(password);
+    const currentUtc = new Date().toISOString();
 
     try {
-      //save new user into db
       const newUser = await this.prisma.user.create({
         data: {
-          email: dto.email,
+          email,
           password: hash,
-          userName: dto.userName,
+          userName,
+          createdAt: currentUtc,
+          lastLogIn: currentUtc,
+          twoFactorEnabled,
+          ...(dateOfBirth && { dateOfBirth }),
         },
       });
 
       const tokens = await this.AuthUtils.getTokens(
         newUser.id,
         newUser.userName,
+        newUser.email,
+        newUser.twoFactorEnabled,
+        currentUtc,
       );
       await this.updateRtHash(newUser.id, tokens.refresh_token);
 
@@ -62,6 +74,7 @@ export class AuthService {
         userName: dto.userName,
       },
     });
+    const currentUtc = new Date().toISOString();
 
     if (!user) {
       throw new ForbiddenException('Incorrect Credential');
@@ -73,7 +86,13 @@ export class AuthService {
       throw new ForbiddenException('Incorrect Credential');
     }
 
-    const tokens = await this.AuthUtils.getTokens(user.id, user.userName);
+    const tokens = await this.AuthUtils.getTokens(
+      user.id,
+      user.userName,
+      user.email,
+      user.twoFactorEnabled,
+      currentUtc,
+    );
     await this.updateRtHash(user.id, tokens.refresh_token);
 
     return tokens;
@@ -108,7 +127,13 @@ export class AuthService {
 
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.AuthUtils.getTokens(user.id, user.userName);
+    const tokens = await this.AuthUtils.getTokens(
+      user.id,
+      user.userName,
+      user.email,
+      user.twoFactorEnabled,
+      user.lastLogIn,
+    );
     await this.updateRtHash(user.id, tokens.refresh_token);
 
     return tokens;

@@ -12,6 +12,8 @@
     "start:dev": "nodemon --exec ts-node -r tsconfig-paths/register src/main.ts",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "prisma-update": "prisma migrate dev",
+    "prisma-deploy": "prisma migrate deploy",
     "neondb:test:reset": "dotenv -e .env.test prisma migrate reset",
     "prisma-test-deploy": "dotenv -e .env.test prisma migrate deploy",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

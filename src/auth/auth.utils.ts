@@ -20,17 +20,23 @@ export class AuthUtils {
     }
   }
 
-  async getTokens(userId: string, userName: string) {
+  async getTokens(
+    userId: string,
+    userName: string,
+    email: string,
+    twoFactorEnabled: boolean,
+    lastLogIn: string,
+  ) {
     const accessTokenSecret = this.config.get<string>('ACCESS_TOKEN_SECRET');
     const refreshTokenSecret = this.config.get<string>('REFRESH_TOKEN_SECRET');
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { id: userId, userName },
+        { id: userId, userName, email, twoFactorEnabled, lastLogIn },
         { secret: accessTokenSecret, expiresIn: '15m' },
       ),
       this.jwtService.signAsync(
-        { id: userId, userName },
+        { id: userId, userName, email, twoFactorEnabled, lastLogIn },
         { secret: refreshTokenSecret, expiresIn: '7d' },
       ),
     ]);

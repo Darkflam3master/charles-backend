@@ -37,4 +37,7 @@ export class AuthSignUpDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
+
+  dateOfBirth?: Date;
+  twoFactorEnabled: boolean;
 }
