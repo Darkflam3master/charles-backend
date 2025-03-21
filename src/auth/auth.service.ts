@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from 'argon2';
+import { Response } from 'express';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthSignUpDto, AuthLogInDto } from './dto';
@@ -68,7 +69,7 @@ export class AuthService {
     }
   }
 
-  async login(dto: AuthLogInDto) {
+  async login(dto: AuthLogInDto, res: Response) {
     const user = await this.prisma.user.findUnique({
       where: {
         userName: dto.userName,
@@ -93,9 +94,24 @@ export class AuthService {
       user.twoFactorEnabled,
       currentUtc,
     );
+
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    res.cookie('access_token', tokens.access_token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 15 * 60 * 1000, // 15mins
+      sameSite: true,
+    });
+
+    res.cookie('refresh_token', tokens.refresh_token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      sameSite: true,
+    });
+
+    res.json({ message: 'Logged in successfully' });
   }
 
   async logout(id: string) {
@@ -114,7 +130,7 @@ export class AuthService {
     return { message: 'Successfully logged out' };
   }
 
-  async refreshTokens(id: string, rt: string) {
+  async refreshTokens(id: string, rt: string, res: Response) {
     const user = await this.prisma.user.findUnique({
       where: {
         id,
@@ -136,6 +152,13 @@ export class AuthService {
     );
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    res.cookie('refresh_token', tokens.refresh_token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      sameSite: true,
+    });
+
+    res.json({ message: 'Refresh token rotated successfully' });
   }
 }

@@ -1,9 +1,11 @@
+import { Response } from 'express';
 import {
   Body,
   Controller,
   HttpCode,
   HttpStatus,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 
@@ -30,8 +32,8 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: AuthLogInDto) {
-    return this.authService.login(dto);
+  login(@Body() dto: AuthLogInDto, @Res() res: Response) {
+    return this.authService.login(dto, res);
   }
 
   @Post('logout')
@@ -47,7 +49,8 @@ export class AuthController {
   refreshTokens(
     @GetCurrentUserId() id: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
+    @Res() res: Response,
   ) {
-    return this.authService.refreshTokens(id, refreshToken);
+    return this.authService.refreshTokens(id, refreshToken, res);
   }
 }

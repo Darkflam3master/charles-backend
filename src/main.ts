@@ -2,13 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import cookieParser from 'cookie-parser';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const configService = new ConfigService();
-  const frontendUrls = configService.get<string>('FRONTEND_URL');
-
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const frontendUrls = configService.get<string>('FRONTEND_URL');
 
   app.enableCors({
     origin: frontendUrls,
