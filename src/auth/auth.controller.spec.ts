@@ -35,6 +35,7 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: 'strongPassword123',
         userName: 'testUser',
+        twoFactorEnabled: false,
       };
 
       const mockTokens = {
