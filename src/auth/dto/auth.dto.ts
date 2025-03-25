@@ -6,6 +6,7 @@ import {
   MaxLength,
   Matches,
   IsDateString,
+  IsOptional,
 } from 'class-validator';
 
 export class AuthLogInDto {
@@ -39,6 +40,7 @@ export class AuthSignUpDto {
   @IsNotEmpty()
   email: string;
 
+  @IsOptional()
   @IsDateString({}, { message: 'Invalid date format.' })
   dateOfBirth?: Date;
   twoFactorEnabled: boolean;
