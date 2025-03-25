@@ -59,9 +59,18 @@ export class AuthService {
 
       return tokens;
     } catch (error) {
+      console.log('ERROR PRINT HERE: ', error);
       if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'p2002') {
-          throw new ForbiddenException('Duplicate Credential');
+        if (error.code === 'P2002') {
+          if (error.meta && Array.isArray(error.meta.target)) {
+            if (error.meta.target.includes('user_name')) {
+              throw new ForbiddenException('Duplicate User Name.');
+            }
+
+            if (error.meta.target.includes('email')) {
+              throw new ForbiddenException('Duplicate email.');
+            }
+          }
         }
       }
 
