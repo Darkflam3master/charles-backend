@@ -2,10 +2,12 @@ import { Test } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthLogInDto, AuthSignUpDto } from './dto';
+import { Response } from 'express';
 
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
+  let res: Response;
 
   const mockAuthService = {
     signup: jest.fn(),
@@ -27,6 +29,7 @@ describe('AuthController', () => {
 
     authController = testAuthModule.get(AuthController);
     authService = testAuthModule.get(AuthService);
+    res = { cookie: jest.fn(), json: jest.fn() } as unknown as Response;
   });
 
   describe('Post /auth/signup', () => {
@@ -38,15 +41,10 @@ describe('AuthController', () => {
         twoFactorEnabled: false,
       };
 
-      const mockTokens = {
-        access_token: 'access-token',
-        refresh_token: 'refresh-token',
-      };
+      jest.spyOn(authService, 'signup');
 
-      jest.spyOn(authService, 'signup').mockResolvedValue(mockTokens);
-
-      expect(await authController.signUp(signupDto)).toBe(mockTokens);
-      expect(mockAuthService.signup).toHaveBeenCalledWith(signupDto);
+      await authController.signUp(signupDto, res);
+      expect(mockAuthService.signup).toHaveBeenCalledWith(signupDto, res);
     });
   });
 
@@ -57,15 +55,11 @@ describe('AuthController', () => {
         userName: 'testUser',
       };
 
-      const mockTokens = {
-        access_token: 'access-token',
-        refresh_token: 'refresh-token',
-      };
+      jest.spyOn(authService, 'login');
 
-      jest.spyOn(authService, 'login').mockResolvedValue(mockTokens);
+      await authController.login(loginDto, res);
 
-      expect(await authController.login(loginDto)).toBe(mockTokens);
-      expect(mockAuthService.login).toHaveBeenCalledWith(loginDto);
+      expect(mockAuthService.login).toHaveBeenCalledWith(loginDto, res);
     });
   });
 
@@ -89,22 +83,18 @@ describe('AuthController', () => {
         refresh_token: 'refresh-token',
       };
 
-      const mockNewTokens = {
-        access_token: 'access-token-new',
-        refresh_token: 'refresh-token-new',
-      };
+      jest.spyOn(authService, 'refreshTokens');
 
-      jest.spyOn(authService, 'refreshTokens').mockResolvedValue(mockNewTokens);
+      await authController.refreshTokens(
+        mockCurrentTokens.access_token,
+        mockCurrentTokens.refresh_token,
+        res,
+      );
 
-      expect(
-        await authController.refreshTokens(
-          mockCurrentTokens.access_token,
-          mockCurrentTokens.refresh_token,
-        ),
-      ).toBe(mockNewTokens);
       expect(mockAuthService.refreshTokens).toHaveBeenCalledWith(
         mockCurrentTokens.access_token,
         mockCurrentTokens.refresh_token,
+        res,
       );
     });
   });
