@@ -42,6 +42,26 @@ export class AuthController {
     return this.authService.logout(id);
   }
 
+  @Post('verify-access-token')
+  @HttpCode(HttpStatus.OK)
+  verifyAt(
+    @GetCurrentUser('accessToken') accessToken: string,
+    @Res() res: Response,
+  ) {
+    return this.authService.verifyAccessToken(accessToken, res);
+  }
+
+  @Public()
+  @UseGuards(RtGuard)
+  @Post('verify-refresh-token')
+  @HttpCode(HttpStatus.OK)
+  verifyRt(
+    @GetCurrentUser('refreshToken') refreshToken: string,
+    @Res() res: Response,
+  ) {
+    return this.authService.verifyRefreshToken(refreshToken, res);
+  }
+
   @Public()
   @UseGuards(RtGuard)
   @Post('refresh')

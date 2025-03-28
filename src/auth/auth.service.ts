@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from 'argon2';
 import { Response } from 'express';
@@ -64,11 +68,11 @@ export class AuthService {
         if (error.code === 'P2002') {
           if (error.meta && Array.isArray(error.meta.target)) {
             if (error.meta.target.includes('user_name')) {
-              throw new ForbiddenException('Duplicate User Name.');
+              throw new ConflictException('Duplicate User Name.');
             }
 
             if (error.meta.target.includes('email')) {
-              throw new ForbiddenException('Duplicate email.');
+              throw new ConflictException('Duplicate email.');
             }
           }
         }
@@ -87,13 +91,13 @@ export class AuthService {
     const currentUtc = new Date().toISOString();
 
     if (!user) {
-      throw new ForbiddenException('Incorrect Credential');
+      throw new UnauthorizedException('Incorrect Credential');
     }
 
     const pwMatches = await argon.verify(user.password, dto.password);
 
     if (!pwMatches) {
-      throw new ForbiddenException('Incorrect Credential');
+      throw new UnauthorizedException('Incorrect Credential');
     }
 
     const tokens = await this.AuthUtils.getTokens(
@@ -139,6 +143,50 @@ export class AuthService {
     return { message: 'Successfully logged out' };
   }
 
+  async verifyAccessToken(accessToken: string, res: Response) {
+    if (!accessToken) {
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
+    }
+
+    const result = await this.AuthUtils.verifyToken(accessToken, 'access');
+
+    if (result.valid) {
+      return res.json({ message: 'Token is valid' });
+    } else if (result.expired) {
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
+    } else {
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
+    }
+  }
+
+  async verifyRefreshToken(refreshToken: string, res: Response) {
+    if (!refreshToken) {
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
+    }
+
+    const result = await this.AuthUtils.verifyToken(refreshToken, 'refresh');
+
+    if (result.valid) {
+      return res.json({ message: 'Token is valid' });
+    } else if (result.expired) {
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
+    } else {
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
+    }
+  }
+
   async refreshTokens(id: string, rt: string, res: Response) {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -146,11 +194,17 @@ export class AuthService {
       },
     });
 
-    if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
+    if (!user || !user.hashedRt)
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
 
     const rtMatches = await argon.verify(user.hashedRt, rt);
 
-    if (!rtMatches) throw new ForbiddenException('Access Denied');
+    if (!rtMatches)
+      throw new UnauthorizedException(
+        'Authentication failed. Please try again.',
+      );
 
     const tokens = await this.AuthUtils.getTokens(
       user.id,
