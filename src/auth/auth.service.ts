@@ -238,6 +238,6 @@ export class AuthService {
       sameSite: true,
     });
 
-    res.json({ message: 'Refresh token rotated successfully' });
+    res.json({ message: 'Tokens refreshed successfully' });
   }
 }
