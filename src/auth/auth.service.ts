@@ -9,7 +9,6 @@ import { Response } from 'express';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthSignUpDto, AuthLogInDto } from './dto';
-import { Tokens } from './types';
 import { AuthUtils } from './auth.utils';
 
 @Injectable({})
@@ -28,13 +27,16 @@ export class AuthService {
     });
   }
 
-  async signup({
-    userName,
-    email,
-    password,
-    dateOfBirth,
-    twoFactorEnabled = false,
-  }: AuthSignUpDto): Promise<Tokens> {
+  async signup(
+    {
+      userName,
+      email,
+      password,
+      dateOfBirth,
+      twoFactorEnabled = false,
+    }: AuthSignUpDto,
+    res: Response,
+  ) {
     AuthUtils.validatePassword(password);
     const hash = await argon.hash(password);
     const currentUtc = new Date().toISOString();
@@ -61,7 +63,21 @@ export class AuthService {
       );
       await this.updateRtHash(newUser.id, tokens.refresh_token);
 
-      return tokens;
+      res.cookie('access_token', tokens.access_token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 15 * 60 * 1000, // 15mins
+        sameSite: true,
+      });
+
+      res.cookie('refresh_token', tokens.refresh_token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        sameSite: true,
+      });
+
+      res.json({ message: 'Sign up successful' });
     } catch (error) {
       console.log('ERROR PRINT HERE: ', error);
       if (error instanceof PrismaClientKnownRequestError) {

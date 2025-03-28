@@ -10,11 +10,14 @@ export class AuthUtils {
   constructor(
     private jwtService: JwtService,
     private config: ConfigService,
-    private accessTokenSecret = this.config.get<string>('ACCESS_TOKEN_SECRET'),
-    private refreshTokenSecret = this.config.get<string>(
-      'REFRESH_TOKEN_SECRET',
-    ),
-  ) {}
+    private accessTokenSecret: string,
+    private refreshTokenSecret: string,
+  ) {
+    this.accessTokenSecret =
+      this.config.get<string>('ACCESS_TOKEN_SECRET') || '';
+    this.refreshTokenSecret =
+      this.config.get<string>('REFRESH_TOKEN_SECRET') || '';
+  }
 
   static validatePassword(password: string) {
     const result = zxcvbn(password);

@@ -9,6 +9,6 @@ import { AuthUtils } from './auth.utils';
 @Module({
   imports: [PrismaModule, JwtModule.register({})],
   controllers: [AuthController],
-  providers: [AuthService, AtStrategy, RtStrategy, AuthUtils],
+  providers: [AuthService, AtStrategy, RtStrategy, AuthUtils, String],
 })
 export class AuthModule {}
