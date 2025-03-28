@@ -161,6 +161,7 @@ export class AuthService {
 
   async verifyAccessToken(accessToken: string, res: Response) {
     if (!accessToken) {
+      console.error('No access token passed');
       throw new UnauthorizedException(
         'Authentication failed. Please try again.',
       );
@@ -171,10 +172,12 @@ export class AuthService {
     if (result.valid) {
       return res.json({ message: 'Token is valid' });
     } else if (result.expired) {
+      console.error('Access token expired');
       throw new UnauthorizedException(
         'Authentication failed. Please try again.',
       );
     } else {
+      console.error('Unexpected access token verification failure');
       throw new UnauthorizedException(
         'Authentication failed. Please try again.',
       );
@@ -230,6 +233,13 @@ export class AuthService {
       user.lastLogIn,
     );
     await this.updateRtHash(user.id, tokens.refresh_token);
+
+    res.cookie('access_token', tokens.access_token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 15 * 60 * 1000, // 15mins
+      sameSite: true,
+    });
 
     res.cookie('refresh_token', tokens.refresh_token, {
       httpOnly: true,
