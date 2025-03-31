@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { AuthSignUpDto, AuthLogInDto } from './dto';
 import { RtGuard } from 'src/common/guards';
 import {
+  GetCurrentToken,
   GetCurrentUser,
   GetCurrentUserId,
   Public,
@@ -44,8 +45,8 @@ export class AuthController {
 
   @Post('verify-access-token')
   @HttpCode(HttpStatus.OK)
-  verifyAt(
-    @GetCurrentUser('accessToken') accessToken: string,
+  verifyAccessToken(
+    @GetCurrentToken('access_token') accessToken: string,
     @Res() res: Response,
   ) {
     return this.authService.verifyAccessToken(accessToken, res);
@@ -55,8 +56,8 @@ export class AuthController {
   @UseGuards(RtGuard)
   @Post('verify-refresh-token')
   @HttpCode(HttpStatus.OK)
-  verifyRt(
-    @GetCurrentUser('refreshToken') refreshToken: string,
+  verifyRefreshToken(
+    @GetCurrentToken('refresh_token') refreshToken: string,
     @Res() res: Response,
   ) {
     return this.authService.verifyRefreshToken(refreshToken, res);
