@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -170,39 +171,23 @@ export class AuthService {
     const result = await this.AuthUtils.verifyToken(accessToken, 'access');
 
     if (result.valid) {
-      return res.json({ message: 'Token is valid' });
+      return res.json({ message: 'TOKEN_VALID' });
     } else if (result.expired) {
-      console.error('Access token expired');
-      throw new UnauthorizedException(
-        'Authentication failed. Please try again.',
-      );
+      throw new UnauthorizedException('TOKEN_EXPIRED');
     } else {
-      console.error('Unexpected access token verification failure');
-      throw new UnauthorizedException(
-        'Authentication failed. Please try again.',
-      );
+      throw new ForbiddenException('TOKEN_INVALID');
     }
   }
 
   async verifyRefreshToken(refreshToken: string, res: Response) {
-    if (!refreshToken) {
-      throw new UnauthorizedException(
-        'Authentication failed. Please try again.',
-      );
-    }
-
     const result = await this.AuthUtils.verifyToken(refreshToken, 'refresh');
 
     if (result.valid) {
-      return res.json({ message: 'Token is valid' });
+      return res.json({ message: 'TOKEN_VALID' });
     } else if (result.expired) {
-      throw new UnauthorizedException(
-        'Authentication failed. Please try again.',
-      );
+      throw new UnauthorizedException('TOKEN_EXPIRED');
     } else {
-      throw new UnauthorizedException(
-        'Authentication failed. Please try again.',
-      );
+      throw new ForbiddenException('TOKEN_INVALID');
     }
   }
 
