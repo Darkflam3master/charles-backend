@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { Cookies } from './types';
 
 type JwtRefreshPayload = {
   id: string;
@@ -16,14 +17,24 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
       configService.get<string>('REFRESH_TOKEN_SECRET') || '';
 
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => {
+          const cookies = req?.cookies as Cookies;
+
+          return cookies?.refresh_token || null;
+        },
+      ]),
       secretOrKey: refreshSecretToken,
       passReqToCallback: true,
     });
   }
 
   validate(req: Request, payload: JwtRefreshPayload) {
-    const refreshToken = req.get('authorization')?.replace('Bearer', '').trim();
+    const cookies = req?.cookies as Cookies;
+
+    const refreshToken = cookies?.refresh_token;
+
     return { ...payload, refreshToken };
   }
 }
