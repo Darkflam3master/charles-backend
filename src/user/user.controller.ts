@@ -1,7 +1,7 @@
 // src/users/users.controller.ts
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserCreateInput } from './types';
+import { Prisma } from '@prisma/client';
 
 @Controller('user')
 export class UsersController {
@@ -13,7 +13,7 @@ export class UsersController {
   }
 
   @Post()
-  create(@Body() data: UserCreateInput) {
+  create(@Body() data: Prisma.UserCreateInput) {
     return this.userService.create(data);
   }
 }
