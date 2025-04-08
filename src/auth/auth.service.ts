@@ -78,7 +78,15 @@ export class AuthService {
         sameSite: true,
       });
 
-      res.json({ message: 'Sign up successful' });
+      res.json({
+        user: {
+          id: newUser.id,
+          userName: newUser.userName,
+          email: newUser.email,
+          twoFactorEnabled: newUser.twoFactorEnabled,
+          lastLogIn: newUser.lastLogIn,
+        },
+      });
     } catch (error) {
       console.log('ERROR PRINT HERE: ', error);
       if (error instanceof PrismaClientKnownRequestError) {
@@ -141,7 +149,15 @@ export class AuthService {
       sameSite: true,
     });
 
-    res.json({ message: 'Logged in successfully' });
+    res.json({
+      user: {
+        id: user.id,
+        userName: user.userName,
+        email: user.email,
+        twoFactorEnabled: user.twoFactorEnabled,
+        lastLogIn: user.lastLogIn,
+      },
+    });
   }
 
   async logout(id: string) {
