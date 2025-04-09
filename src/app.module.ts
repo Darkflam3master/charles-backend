@@ -5,12 +5,14 @@ import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './common/guards';
+import { CosmosDbModule } from './azure';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     PrismaModule,
+    CosmosDbModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [],
