@@ -1,6 +1,7 @@
 import { Container, CosmosClient, Database } from '@azure/cosmos';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Public } from 'src/common/decorators';
 
 @Injectable()
 export class CosmosDbService implements OnModuleInit {
@@ -11,20 +12,32 @@ export class CosmosDbService implements OnModuleInit {
   constructor(private config: ConfigService) {
     const endpoint = this.config.get<string>('COSMOSDB_ENDPOINT') || '';
     const key = this.config.get<string>('COSMOSDB_KEY') || '';
-    const databaseId = this.config.get<string>('COSMOSDB_DATABASE_ID') || '';
-    const containerId = this.config.get<string>('COSMOSDB_CONTAINER_ID') || '';
+
     this.client = new CosmosClient({
       endpoint,
       key,
     });
-
-    this.database = this.client.database(databaseId);
-    this.container = this.database.container(containerId);
   }
 
-  async onModuleInit() {}
+  async onModuleInit() {
+    const databaseId = this.config.get<string>('COSMOSDB_DATABASE_ID') || '';
+    const containerId = this.config.get<string>('COSMOSDB_CONTAINER_ID') || '';
 
+    try {
+      this.database = this.client.database(databaseId);
+      this.container = this.database.container(containerId);
+
+      await this.container.items.query('SELECT 1').fetchAll(); // warm-up query
+
+      console.log('Cosmos DB warmed up.');
+    } catch (error) {
+      console.error('Error warming up Cosmos DB:', error);
+    }
+  }
+
+  @Public()
   async getItems(query: string) {
+    console.log('get all item ran');
     const { resources: results } = await this.container.items
       .query(query)
       .fetchAll();
@@ -36,9 +49,9 @@ export class CosmosDbService implements OnModuleInit {
     return createdItem;
   }
 
-  async updateItem(itemId: string, item: any) {
+  async updateItem(itemId: string, partitionKey: string, item: any) {
     const { resource: updatedItem } = await this.container
-      .item(itemId)
+      .item(itemId, partitionKey)
       .replace(item);
     return updatedItem;
   }
