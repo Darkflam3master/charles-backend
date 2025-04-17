@@ -6,7 +6,12 @@ describe('CosmosdbService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CosmosDbService],
+      providers: [
+        {
+          provide: CosmosDbService,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     service = module.get<CosmosDbService>(CosmosDbService);
