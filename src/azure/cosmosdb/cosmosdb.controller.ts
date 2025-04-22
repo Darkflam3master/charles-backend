@@ -11,27 +11,26 @@ import {
 import { CosmosDbService } from './cosmosdb.service';
 import { Public } from 'src/common/decorators';
 
-@Controller('cosmosdb')
+@Controller('config')
 export class CosmosDbController {
   constructor(private readonly cosmosDbService: CosmosDbService) {}
 
   @Public()
-  @Get('get-all')
-  async getItems() {
-    console.log('contoller get all ran');
+  @Get('all')
+  async getAllConfigs() {
     const query = 'SELECT * FROM c';
     return await this.cosmosDbService.getItems(query);
   }
 
   @Public()
-  @Post('user-layout')
-  async createItem(@Body() item: any) {
+  @Post()
+  async createConfig(@Body() item: any) {
     return await this.cosmosDbService.createItem(item);
   }
 
   @Public()
-  @Put('/user-layout/:id')
-  async updateItem(
+  @Get('/:id')
+  async getConfig(
     @Param('id') id: string,
     @Headers('x-ms-partitionkey') partitionKey: string,
     @Body() item: any,
@@ -39,8 +38,18 @@ export class CosmosDbController {
     return await this.cosmosDbService.updateItem(id, partitionKey, item);
   }
 
-  @Delete(':id')
-  async deleteItem(@Param('id') id: string) {
+  @Public()
+  @Put('/:id')
+  async updateConfig(
+    @Param('id') id: string,
+    @Headers('x-ms-partitionkey') partitionKey: string,
+    @Body() item: any,
+  ) {
+    return await this.cosmosDbService.updateItem(id, partitionKey, item);
+  }
+
+  @Delete('/:id')
+  async deleteConfig(@Param('id') id: string) {
     return await this.cosmosDbService.deleteItem(id);
   }
 }

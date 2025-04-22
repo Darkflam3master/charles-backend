@@ -37,7 +37,6 @@ export class CosmosDbService implements OnModuleInit {
 
   @Public()
   async getItems(query: string) {
-    console.log('get all item ran');
     const { resources: results } = await this.container.items
       .query(query)
       .fetchAll();
