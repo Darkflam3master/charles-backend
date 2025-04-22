@@ -79,12 +79,15 @@ export class AuthService {
       });
 
       res.json({
-        user: {
-          id: newUser.id,
-          userName: newUser.userName,
-          email: newUser.email,
-          twoFactorEnabled: newUser.twoFactorEnabled,
-          lastLogIn: newUser.lastLogIn,
+        status: 'success',
+        data: {
+          user: {
+            id: newUser.id,
+            userName: newUser.userName,
+            email: newUser.email,
+            twoFactorEnabled: newUser.twoFactorEnabled,
+            lastLogIn: newUser.lastLogIn,
+          },
         },
       });
     } catch (error) {
@@ -150,12 +153,15 @@ export class AuthService {
     });
 
     res.json({
-      user: {
-        id: user.id,
-        userName: user.userName,
-        email: user.email,
-        twoFactorEnabled: user.twoFactorEnabled,
-        lastLogIn: user.lastLogIn,
+      status: 'success',
+      data: {
+        user: {
+          id: user.id,
+          userName: user.userName,
+          email: user.email,
+          twoFactorEnabled: user.twoFactorEnabled,
+          lastLogIn: user.lastLogIn,
+        },
       },
     });
   }
@@ -173,7 +179,29 @@ export class AuthService {
       },
     });
 
-    return { message: 'Successfully logged out' };
+    return { status: 'success' };
+  }
+
+  async getUser(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        userName: true,
+        email: true,
+        dateOfBirth: true,
+        twoFactorEnabled: true,
+        createdAt: true,
+        lastLogIn: true,
+        role: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return { status: 'success', data: { user: user } };
   }
 
   async verifyAccessToken(accessToken: string, res: Response) {
@@ -249,6 +277,6 @@ export class AuthService {
       sameSite: true,
     });
 
-    res.json({ message: 'Tokens refreshed successfully' });
+    res.json({ status: 'success' });
   }
 }
