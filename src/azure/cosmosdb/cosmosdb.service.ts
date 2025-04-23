@@ -27,7 +27,7 @@ export class CosmosDbService implements OnModuleInit {
       this.database = this.client.database(databaseId);
       this.container = this.database.container(containerId);
 
-      await this.container.items.query('SELECT 1').fetchAll(); // warm-up query
+      await this.container.items.query('SELECT 1').fetchAll();
 
       console.log('Cosmos DB warmed up.');
     } catch (error) {
