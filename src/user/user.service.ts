@@ -1,17 +1,30 @@
 // src/users/users.service.ts
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
-    return await this.prisma.user.findMany(); // Example query
-  }
+  async getUser(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        userName: true,
+        email: true,
+        dateOfBirth: true,
+        twoFactorEnabled: true,
+        createdAt: true,
+        lastLogIn: true,
+        role: true,
+      },
+    });
 
-  async create(data: Prisma.UserCreateInput) {
-    return await this.prisma.user.create({ data });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return { status: 'success', data: { user: user } };
   }
 }

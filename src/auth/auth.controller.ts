@@ -2,7 +2,6 @@ import { Response } from 'express';
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -42,12 +41,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUserId() id: string) {
     return this.authService.logout(id);
-  }
-
-  @Get('user')
-  @HttpCode(HttpStatus.OK)
-  getUser(@GetCurrentUserId() id: string) {
-    return this.authService.getUser(id);
   }
 
   @Post('verify-access-token')

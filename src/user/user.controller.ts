@@ -1,19 +1,15 @@
-// src/users/users.controller.ts
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Prisma } from '@prisma/client';
+import { GetCurrentUserId } from 'src/common/decorators';
 
 @Controller('user')
 export class UsersController {
   constructor(private userService: UserService) {}
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
-
-  @Post()
-  create(@Body() data: Prisma.UserCreateInput) {
-    return this.userService.create(data);
+  @Public()
+  @Get('user')
+  @HttpCode(HttpStatus.OK)
+  getUser(@GetCurrentUserId() id: string) {
+    return this.userService.getUser(id);
   }
 }

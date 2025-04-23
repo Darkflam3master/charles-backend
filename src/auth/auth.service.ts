@@ -182,28 +182,6 @@ export class AuthService {
     return { status: 'success' };
   }
 
-  async getUser(id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        userName: true,
-        email: true,
-        dateOfBirth: true,
-        twoFactorEnabled: true,
-        createdAt: true,
-        lastLogIn: true,
-        role: true,
-      },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-
-    return { status: 'success', data: { user: user } };
-  }
-
   async verifyAccessToken(accessToken: string, res: Response) {
     if (!accessToken) {
       console.error('No access token passed');
