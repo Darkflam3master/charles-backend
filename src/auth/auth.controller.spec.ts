@@ -67,7 +67,7 @@ describe('AuthController', () => {
     it('should return access and refresh tokens on successful login', async () => {
       const mockId = 'mock-id';
 
-      const mockResult = { message: 'Successfully logged out' };
+      const mockResult = { status: 'success' };
 
       jest.spyOn(authService, 'logout').mockResolvedValue(mockResult);
 
