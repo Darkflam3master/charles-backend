@@ -11,4 +11,10 @@ export class UserController {
   getUser(@GetCurrentUserId() id: string) {
     return this.userService.getUser(id);
   }
+
+  @Get('profile-sas-url')
+  @HttpCode(HttpStatus.OK)
+  getUserProfileSasUrl(@GetCurrentUserId() id: string) {
+    return this.userService.getUserProfileSasUrl(id);
+  }
 }
